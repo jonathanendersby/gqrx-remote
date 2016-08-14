@@ -151,12 +151,12 @@ class GqrxRemote(ttk.Frame):
         self.btn_load = ttk.Button(self.menu, text="Get", width=6, command=self.cb_get_frequency)
         self.btn_load.grid(row=6, column=3, padx=2, pady=2)
 
-        self.ckb_top = ttk.Checkbutton(self.menu, text="Always on top?", command=self.cb_top)
-        self.ckb_top.grid(row=7, column=0, columnspan=2, sticky=tk.W)
-
-        self.ckb_arrows = ttk.Checkbutton(self.menu, text="Arrow keys tune and squelch?",
+        self.ckb_arrows = ttk.Checkbutton(self.menu, text="Arrow keys adjust frequency and squelch? (Shift=Fine)",
                                           command=self.cb_arrows)
-        self.ckb_arrows.grid(row=8, column=0, columnspan=3, sticky=tk.W)
+        self.ckb_arrows.grid(row=7, column=0, columnspan=4, sticky=tk.W)
+
+        self.ckb_top = ttk.Checkbutton(self.menu, text="Always on top?", command=self.cb_top)
+        self.ckb_top.grid(row=8, column=0, columnspan=2, sticky=tk.W)
 
         self.btn_quit = ttk.Button(self.menu, text="Quit", command=self.master.destroy)
         self.btn_quit.grid(row=8, column=2, columnspan=2, sticky=tk.SE)
