@@ -14,6 +14,8 @@ Features
 - Restore gqrx frequency and mode (bookmark double-click)
 - Keep window always on top
 - Auto save
+- Left and Right arrow keys adjust Frequency (Hold Shift for Fine Tuning)
+- Up and Down arrow keys adjust Squelch (Hold Shift for Fine Tuning)
 
 Next versions will also feature:
 

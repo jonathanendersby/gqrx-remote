@@ -52,6 +52,12 @@ class RigCtl():
     def get_level(self):
         return self._request('l')
 
+    def get_squelch(self):
+        return self._request('l SQL')
+
+    def set_squelch(self, squelch):
+        return self._request('L SQL %s' % squelch)
+
 
 class GqrxRemote(ttk.Frame):
     """Remote application that interacts with gqrx using rigctl protocol.
@@ -61,6 +67,7 @@ class GqrxRemote(ttk.Frame):
     def __init__(self, root):
         ttk.Frame.__init__(self, root)
         self.config = 'gqrx-bookmarks.csv'
+        self.use_arrows = False
         self.build()
         self.csv_load()
 
@@ -101,6 +108,7 @@ class GqrxRemote(ttk.Frame):
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
         self.tree.bind('<<TreeviewSelect>>', self.cb_autofill_form)
         self.tree.bind('<Double-Button-1>', self.cb_set_frequency)
+        self.master.bind("<Key>", self.key)
 
         # vertical separator
         ttk.Frame(self).grid(row=0, column=2, rowspan=2, padx=5)
@@ -144,7 +152,11 @@ class GqrxRemote(ttk.Frame):
         self.btn_load.grid(row=6, column=3, padx=2, pady=2)
 
         self.ckb_top = ttk.Checkbutton(self.menu, text="Always on top?", command=self.cb_top)
-        self.ckb_top.grid(row=8, column=0, columnspan=2, sticky=tk.E)
+        self.ckb_top.grid(row=7, column=0, columnspan=2, sticky=tk.W)
+
+        self.ckb_arrows = ttk.Checkbutton(self.menu, text="Arrow keys tune and squelch?",
+                                          command=self.cb_arrows)
+        self.ckb_arrows.grid(row=8, column=0, columnspan=3, sticky=tk.W)
 
         self.btn_quit = ttk.Button(self.menu, text="Quit", command=self.master.destroy)
         self.btn_quit.grid(row=8, column=2, columnspan=2, sticky=tk.SE)
@@ -154,6 +166,7 @@ class GqrxRemote(ttk.Frame):
         self.txt_port.insert(0, "7356")
         self.cbb_mode.current(0)
         self.ckb_top.invoke()
+        self.ckb_arrows.invoke()
 
     def csv_load(self):
         """Read the frequency bookmarks file and populate the tree."""
@@ -176,6 +189,38 @@ class GqrxRemote(ttk.Frame):
     def cb_top(self):
         """Set window property to be always on top."""
         self.master.attributes("-topmost", 'selected' in self.ckb_top.state())
+
+    def cb_arrows(self):
+        """Use arrow keys to adjust frequency and squelch."""
+        self.use_arrows = 'selected' in self.ckb_arrows.state()
+
+    def key(self, event):
+        if self.use_arrows:
+            sql = float(self._connect().get_squelch())
+            frequency = int(self._connect().get_frequency())
+
+            # Shift is pressed
+            if event.state == 97:
+                f_change = 500
+                s_change = 1
+            else:
+                f_change = 2000
+                s_change = 10
+
+            if event.char == '\uf700':
+                sql += s_change
+
+            if event.char == '\uf701':
+                sql -= s_change
+
+            if event.char == '\uf702':
+                frequency -= f_change
+
+            if event.char == '\uf703':
+                frequency += f_change
+
+            self._connect().set_squelch(sql)
+            self._connect().set_frequency(frequency)
 
     def cb_get_frequency(self):
         """Get current gqrx frequency and mode."""
